@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="display" [class.visible]="state !== 'idle'">
+    {{ display }}
+  </div>
+
+  <div class="buttons">
+    <button *ngIf="state === 'idle' || state === 'stopped'" class="btn btn-start" (click)="start()">
+      Start
+    </button>
+
+    <ng-container *ngIf="state === 'running'">
+      <button class="btn btn-pause" (click)="pause()">Pause</button>
+      <button class="btn btn-stop" (click)="stop()">Stop</button>
+    </ng-container>
+
+    <ng-container *ngIf="state === 'paused'">
+      <button class="btn btn-start" (click)="resume()">Resume</button>
+      <button class="btn btn-stop" (click)="stop()">Stop</button>
+    </ng-container>
+
+    <ng-container *ngIf="state === 'stopped'">
+      <button class="btn btn-delete" (click)="delete()">Delete</button>
+    </ng-container>
+  </div>
+</div>
