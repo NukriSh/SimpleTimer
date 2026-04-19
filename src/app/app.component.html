@@ -1,25 +1,80 @@
-<div class="container">
-  <div class="display" [class.visible]="state !== 'idle'">
-    {{ display }}
-  </div>
+<div class="app-wrapper">
 
-  <div class="buttons">
-    <button *ngIf="state === 'idle' || state === 'stopped'" class="btn btn-start" (click)="start()">
-      Start
+  <!-- New stopwatch trigger — always at top -->
+  <div class="new-timer-area">
+    <button class="btn-new" (click)="startNew()" title="Start New Stopwatch">
+      <svg class="new-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      <span>New Stopwatch</span>
     </button>
-
-    <ng-container *ngIf="state === 'running'">
-      <button class="btn btn-pause" (click)="pause()">Pause</button>
-      <button class="btn btn-stop" (click)="stop()">Stop</button>
-    </ng-container>
-
-    <ng-container *ngIf="state === 'paused'">
-      <button class="btn btn-start" (click)="resume()">Resume</button>
-      <button class="btn btn-stop" (click)="stop()">Stop</button>
-    </ng-container>
-
-    <ng-container *ngIf="state === 'stopped'">
-      <button class="btn btn-delete" (click)="delete()">Delete</button>
-    </ng-container>
   </div>
+
+  <!-- List: newest at top, oldest at bottom -->
+  <div class="stopwatch-list" *ngIf="stopwatches.length > 0">
+    <div
+      class="stopwatch-item"
+      *ngFor="let sw of stopwatches; trackBy: trackById"
+      [class.state-running]="sw.state === 'running'"
+      [class.state-paused]="sw.state === 'paused'"
+      [class.state-stopped]="sw.state === 'stopped'"
+    >
+      <span class="sw-id">#{{ sw.id }}</span>
+
+      <span class="sw-display">{{ format(sw.elapsed) }}</span>
+
+      <div class="sw-controls">
+
+        <!-- Pause (running) -->
+        <button
+          *ngIf="sw.state === 'running'"
+          class="icon-btn btn-pause"
+          (click)="pause(sw)"
+          title="Pause"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
+        </button>
+
+        <!-- Resume (paused) -->
+        <button
+          *ngIf="sw.state === 'paused'"
+          class="icon-btn btn-play"
+          (click)="resume(sw)"
+          title="Resume"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </button>
+
+        <!-- Stop (running or paused) -->
+        <button
+          *ngIf="sw.state === 'running' || sw.state === 'paused'"
+          class="icon-btn btn-stop"
+          (click)="stop(sw)"
+          title="Stop"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <rect x="5" y="5" width="14" height="14" rx="2"/>
+          </svg>
+        </button>
+
+        <!-- Delete (stopped) — visually distinct: outlined trash icon -->
+        <button
+          *ngIf="sw.state === 'stopped'"
+          class="icon-btn btn-delete"
+          (click)="delete(sw)"
+          title="Delete"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M9 3h6l1 1h4v2H4V4h4L9 3zM5 7h14l-1 13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 7zm4 3v7h2v-7H9zm4 0v7h2v-7h-2z"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
 </div>
