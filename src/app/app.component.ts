@@ -1,7 +1,16 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-type State = 'idle' | 'running' | 'paused' | 'stopped';
+type SwState = 'running' | 'paused' | 'stopped';
+
+interface Stopwatch {
+  id: number;
+  state: SwState;
+  elapsed: number;
+  accumulated: number;
+  startTime: number;
+  intervalId: ReturnType<typeof setInterval> | null;
+}
 
 @Component({
   selector: 'app-root',
@@ -11,18 +20,14 @@ type State = 'idle' | 'running' | 'paused' | 'stopped';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnDestroy {
-  state: State = 'idle';
-  elapsed = 0;
-  private intervalId: ReturnType<typeof setInterval> | null = null;
-  private startTime = 0;
-  private accumulated = 0;
+  stopwatches: Stopwatch[] = [];
+  private nextId = 1;
 
-  get display(): string {
-    const ms = this.elapsed;
-    const h = Math.floor(ms / 3600000);
-    const m = Math.floor((ms % 3600000) / 60000);
-    const s = Math.floor((ms % 60000) / 1000);
-    const cs = Math.floor((ms % 1000) / 10);
+  format(elapsed: number): string {
+    const h = Math.floor(elapsed / 3600000);
+    const m = Math.floor((elapsed % 3600000) / 60000);
+    const s = Math.floor((elapsed % 60000) / 1000);
+    const cs = Math.floor((elapsed % 1000) / 10);
     return `${this.pad(h)}:${this.pad(m)}:${this.pad(s)}.${this.pad(cs)}`;
   }
 
@@ -30,49 +35,59 @@ export class AppComponent implements OnDestroy {
     return n.toString().padStart(2, '0');
   }
 
-  start() {
-    this.startTime = Date.now();
-    this.intervalId = setInterval(() => {
-      this.elapsed = this.accumulated + (Date.now() - this.startTime);
+  startNew() {
+    const sw: Stopwatch = {
+      id: this.nextId++,
+      state: 'running',
+      elapsed: 0,
+      accumulated: 0,
+      startTime: Date.now(),
+      intervalId: null,
+    };
+    sw.intervalId = setInterval(() => {
+      sw.elapsed = sw.accumulated + (Date.now() - sw.startTime);
     }, 10);
-    this.state = 'running';
+    this.stopwatches.unshift(sw);
   }
 
-  pause() {
-    this.clearTimer();
-    this.accumulated = this.elapsed;
-    this.state = 'paused';
-  }
-
-  resume() {
-    this.startTime = Date.now();
-    this.intervalId = setInterval(() => {
-      this.elapsed = this.accumulated + (Date.now() - this.startTime);
-    }, 10);
-    this.state = 'running';
-  }
-
-  stop() {
-    this.clearTimer();
-    this.accumulated = this.elapsed;
-    this.state = 'stopped';
-  }
-
-  delete() {
-    this.clearTimer();
-    this.elapsed = 0;
-    this.accumulated = 0;
-    this.state = 'idle';
-  }
-
-  private clearTimer() {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
+  pause(sw: Stopwatch) {
+    if (sw.intervalId) {
+      clearInterval(sw.intervalId);
+      sw.intervalId = null;
     }
+    sw.accumulated = sw.elapsed;
+    sw.state = 'paused';
+  }
+
+  resume(sw: Stopwatch) {
+    sw.startTime = Date.now();
+    sw.intervalId = setInterval(() => {
+      sw.elapsed = sw.accumulated + (Date.now() - sw.startTime);
+    }, 10);
+    sw.state = 'running';
+  }
+
+  stop(sw: Stopwatch) {
+    if (sw.intervalId) {
+      clearInterval(sw.intervalId);
+      sw.intervalId = null;
+    }
+    sw.accumulated = sw.elapsed;
+    sw.state = 'stopped';
+  }
+
+  delete(sw: Stopwatch) {
+    if (sw.intervalId) clearInterval(sw.intervalId);
+    this.stopwatches = this.stopwatches.filter(s => s.id !== sw.id);
+  }
+
+  trackById(_: number, sw: Stopwatch): number {
+    return sw.id;
   }
 
   ngOnDestroy() {
-    this.clearTimer();
+    this.stopwatches.forEach(sw => {
+      if (sw.intervalId) clearInterval(sw.intervalId);
+    });
   }
 }
