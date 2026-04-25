@@ -5,7 +5,7 @@
       <svg class="new-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M8 5v14l11-7z"/>
       </svg>
-      <span>New Stopwatch</span>
+      <span></span>
     </button>
   </div>
 
@@ -23,8 +23,7 @@
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
       </button>
 
-      <span class="sw-id">#{{ sw.id }}</span>
-      <span class="sw-display">{{ format(sw.elapsed) }}</span>
+<span class="sw-display">{{ format(sw.elapsed) }}</span>
 
       <button class="icon-btn btn-delete" (click)="delete(sw)" title="Delete">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3h6l1 1h4v2H4V4h4L9 3zM5 7h14l-1 13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 7zm4 3v7h2v-7H9zm4 0v7h2v-7h-2z"/></svg>
