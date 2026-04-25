@@ -5,6 +5,7 @@ type SwState = 'running' | 'paused';
 
 interface Stopwatch {
   id: number;
+  name: string;
   state: SwState;
   elapsed: number;
   accumulated: number;
@@ -38,6 +39,7 @@ export class AppComponent implements OnDestroy {
   startNew() {
     const sw: Stopwatch = {
       id: this.nextId++,
+      name: '',
       state: 'running',
       elapsed: 0,
       accumulated: 0,
