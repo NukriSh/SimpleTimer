@@ -1,10 +1,12 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
-type SwState = 'running' | 'paused' | 'stopped';
+type SwState = 'running' | 'paused';
 
 interface Stopwatch {
   id: number;
+  name: string;
   state: SwState;
   elapsed: number;
   accumulated: number;
@@ -15,7 +17,7 @@ interface Stopwatch {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DragDropModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -38,6 +40,7 @@ export class AppComponent implements OnDestroy {
   startNew() {
     const sw: Stopwatch = {
       id: this.nextId++,
+      name: '',
       state: 'running',
       elapsed: 0,
       accumulated: 0,
@@ -67,18 +70,13 @@ export class AppComponent implements OnDestroy {
     sw.state = 'running';
   }
 
-  stop(sw: Stopwatch) {
-    if (sw.intervalId) {
-      clearInterval(sw.intervalId);
-      sw.intervalId = null;
-    }
-    sw.accumulated = sw.elapsed;
-    sw.state = 'stopped';
-  }
-
   delete(sw: Stopwatch) {
     if (sw.intervalId) clearInterval(sw.intervalId);
     this.stopwatches = this.stopwatches.filter(s => s.id !== sw.id);
+  }
+
+  drop(event: CdkDragDrop<Stopwatch[]>) {
+    moveItemInArray(this.stopwatches, event.previousIndex, event.currentIndex);
   }
 
   trackById(_: number, sw: Stopwatch): number {
