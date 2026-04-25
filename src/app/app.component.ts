@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-type SwState = 'running' | 'paused' | 'stopped';
+type SwState = 'running' | 'paused';
 
 interface Stopwatch {
   id: number;
@@ -65,15 +65,6 @@ export class AppComponent implements OnDestroy {
       sw.elapsed = sw.accumulated + (Date.now() - sw.startTime);
     }, 10);
     sw.state = 'running';
-  }
-
-  stop(sw: Stopwatch) {
-    if (sw.intervalId) {
-      clearInterval(sw.intervalId);
-      sw.intervalId = null;
-    }
-    sw.accumulated = sw.elapsed;
-    sw.state = 'stopped';
   }
 
   delete(sw: Stopwatch) {
